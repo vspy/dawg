@@ -2,33 +2,34 @@ module Dawg
 
   class Builder
 
-    def to_binary io
+    def to_binary
       close
 
       update_offsets
 
-      # root node offset, 64 bits unsigned
-      root_offset = root[:binary_offset]
-      io.write [root_offset].pack('Q')
+      root_offset = root.info[:binary_offset]
+      result = [root_offset].pack('Q')
 
-      # write nodes
       root.traverse :backward do |node|
-        io.write node_to_binary(node)
+        result += Builder.node_to_binary(node)
       end
+
+      result
     end
 
     private
 
     def self.node_to_binary node
-      node_sizes_flags(node) +
-      node.children.map{|letter, node|
-        [letter].pack('U') +
-        varcode(node.info[:binary_offset])
-      }.join
+      node_sizes_flags_to_binary(node) +
+      node.children.map{|letter, node| node_ref_to_binary(letter, node)}.join
+    end
+
+    def self.node_ref_to_binary letter, node
+      letter.bytes.pack('C*') + varcode(node.info[:binary_offset])
     end
 
     ## TODO: exchange total_children and children.size ?
-    def self.node_sizes_flags node
+    def self.node_sizes_flags_to_binary node
       varcode(
         (node.info[:end_of_word] ? 0x01 : 0x00) +
          node.info[:total_children] * 2
@@ -43,7 +44,7 @@ module Dawg
 
       root.traverse :backward do |node|
         node.info[:binary_offset] = offset
-        offset += node_to_binary(node).length
+        offset += Builder.node_to_binary(node).length
       end
     end
 
