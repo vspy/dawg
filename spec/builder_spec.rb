@@ -3,6 +3,19 @@ require 'dawg'
 
 describe Dawg::Builder do
 
+  it "should raise an error if words are fed in non-alphabetical order" do
+    b = Dawg::Builder.new
+    b.add_word 'dog'
+    lambda{b.add_word 'cat'}.should raise_error(Dawg::InvalidOrderError)
+  end
+
+  it "should raise an error when adding to closed builder" do
+    b = Dawg::Builder.new
+    b.add_word 'cat'
+    b.close
+    lambda{b.add_word 'dog'}.should raise_error(Dawg::BuilderClosedError)
+  end
+
   it "should build a simple tree" do
     b = Dawg::Builder.new
     b.add_word 'cat'
@@ -22,8 +35,8 @@ describe Dawg::Builder do
 
   it "should reuse common prefixes" do
     b = Dawg::Builder.new
-    b.add_word 'rework'
     b.add_word 'replay'
+    b.add_word 'rework'
     b.close
     b.root.children.length.should == 1
     b.root['r'].children.length.should == 1

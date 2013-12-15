@@ -40,6 +40,20 @@ module Dawg
         @info.hash + @children.hash
       end
 
+      def traverse type = :forward, &block
+        if type == :forward
+          block.call(self)
+        end
+
+        @children.each do |letter, child|
+          child.traverse type, &block
+        end
+
+        if type != :forward
+          block.call(self)
+        end
+      end
+
       def eql?(other)
         other && other.is_a?(Node) &&
           other.info == info &&

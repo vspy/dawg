@@ -1,6 +1,7 @@
 require 'dawg/builder/node'
 require 'dawg/builder/add_word'
 require 'dawg/builder/close'
+require 'dawg/builder/serialize'
 
 module Dawg
 

@@ -1,9 +1,9 @@
 module Dawg
 
-  class DawgException < Exception; end
+  class DawgError < Exception; end
 
-  class InvalidOrderException < DawgException; end
+  class InvalidOrderError < DawgError; end
 
-  class BuilderClosedException < DawgException; end
+  class BuilderClosedError < DawgError; end
 
 end

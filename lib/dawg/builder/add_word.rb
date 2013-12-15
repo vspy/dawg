@@ -4,8 +4,8 @@ module Dawg
 
     def add_word word
       return if word.empty?
-      raise BuilderClosedException('Builder is closed, no words can be added.') if @closed
-      raise InvalidOrderException('Words must be added in alphabetical order') if @last_word && @last_word > word
+      raise BuilderClosedError.new('Builder is closed, no words can be added.') if @closed
+      raise InvalidOrderError.new('Words must be added in alphabetical order') if @last_word && @last_word > word
 
       cp, last_state = common_prefix word
 
@@ -13,6 +13,8 @@ module Dawg
 
       replace_or_register last_state if last_state.has_children?
       add_suffix(last_state, current_suffix)
+
+      @last_word = word
     end
 
     private
